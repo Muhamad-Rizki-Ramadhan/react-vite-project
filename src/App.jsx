@@ -1,35 +1,47 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import Home from "./pages/public";
+import PublicLayout from "./layouts/public";
+import Books from "./pages/public/books";
+import Register from "./pages/auth/register";
+import Login from "./pages/auth/login";
+import AdminLayout from "./layouts/admin";
+import Dashboard from "./pages/admin";
+import BookCreate from "./pages/admin/books/create";
+import AdminBooks from "./pages/admin/books";
+import AdminAuthors from "./pages/admin/authors";
+import AuthorCreate from "./pages/admin/authors/create";
+import AdminGenres from "./pages/admin/genres";
+import GenreCreate from "./pages/admin/genres/create";
 
 function App() {
-  const [count, setCount] = useState(0)
+    return (
+        <BrowserRouter>
+            <Routes>
+                
+                <Route element={<PublicLayout />}>
+                    <Route index element={<Home />} />
+                    <Route path="books" element={<Books />} />
+                </Route>
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+          
+                <Route path="login" element={<Login />} />
+                <Route path="register" element={<Register />} />
+
+              
+                <Route path="admin" element={<AdminLayout />}>
+                    <Route index element={<Dashboard />} />
+                    <Route path="books" element={<AdminBooks />} />
+                    <Route path="books/create" element={<BookCreate />} />
+
+                    <Route path="authors" element={<AdminAuthors />} />
+                    <Route path="authors/create" element={<AuthorCreate />} />
+
+                    <Route path="genres" element={<AdminGenres />} />
+                    <Route path="genres/create" element={<GenreCreate />} />
+                </Route>
+            </Routes>
+        </BrowserRouter>
+    );
 }
 
-export default App
+export default App;
