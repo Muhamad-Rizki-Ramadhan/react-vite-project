@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { getGenres } from "../../../_services/genres";
 import { getAuthors } from "../../../_services/authors";
-import { useNavigate } from "react-router-dom";
-import { createBook } from "../../../_services/books";
+import { showBook, updateBook } from "../../../_services/books";
 
-export default function BookCreate() {
+export default function BookEdit() {
+  const { id } = useParams();
+  const navigate = useNavigate();
   const [genres, setGenres] = useState([]);
   const [authors, setAuthors] = useState([]);
   const [formData, setFormData] = useState({
@@ -15,23 +17,33 @@ export default function BookCreate() {
     author_id: 0,
     cover_photo: null,
     description: "",
+    _method: "PUT",
   });
-
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
-      const [genresData, authorsData] = await Promise.all([
+      const [genresData, authorsData, bookData] = await Promise.all([
         getGenres(),
         getAuthors(),
+        showBook(id),
       ]);
 
       setGenres(genresData);
       setAuthors(authorsData);
+      setFormData({
+        title: bookData.title,
+        price: bookData.price,
+        stock: bookData.stock,
+        genre_id: bookData.genre_id,
+        author_id: bookData.author_id,
+        cover_photo: bookData.cover_photo,
+        description: bookData.description,
+        _method: "PUT",
+      });
     };
 
     fetchData();
-  }, []);
+  }, [id]);
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -54,26 +66,31 @@ export default function BookCreate() {
 
     try {
       const payload = new FormData();
+
       for (const key in formData) {
-        payload.append(key, formData[key]);
+        if (key === "cover_photo") {
+          if (formData.cover_photo instanceof File) {
+            payload.append("cover_photo", formData.cover_photo);
+          }
+        } else {
+          payload.append(key, formData[key]);
+        }
       }
 
-      await createBook(payload);
+      await updateBook(id, payload);
       navigate("/admin/books");
     } catch (error) {
       console.log(error);
-      alert("Error creating book");
+      alert("Error updating book");
     }
   };
-
-  console.log(formData);
 
   return (
     <>
       <section className="bg-white dark:bg-gray-900">
         <div className="max-w-2xl px-4 py-8 mx-auto lg:py-16">
           <h2 className="mb-4 text-xl font-bold text-gray-900 dark:text-white">
-            Create New Book
+            Edit Book
           </h2>
           <form onSubmit={handleSubmit}>
             <div className="grid gap-4 mb-4 sm:grid-cols-2 sm:gap-6 sm:mb-5">
@@ -190,7 +207,6 @@ export default function BookCreate() {
                   onChange={handleChange}
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full cursor-pointer dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
                   placeholder="Cover Photo"
-                  required=""
                 />
               </div>
               <div className="sm:col-span-2">
@@ -216,7 +232,7 @@ export default function BookCreate() {
                 type="submit"
                 className="text-white bg-indigo-700 hover:bg-indigo-800 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:ring-indigo-800"
               >
-                Create Book
+                Save Book
               </button>
               <button
                 type="reset"
