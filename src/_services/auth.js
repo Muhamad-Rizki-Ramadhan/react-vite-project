@@ -22,20 +22,6 @@ export const register = async (formData) => {
   }
 };
 
-export const getRole = () => {
-    try {
-        const userInfoString = localStorage.getItem('userInfo');
-        if (userInfoString) {
-            const userInfo = JSON.parse(userInfoString);
-            return userInfo?.role || null;
-        }
-    } catch (e) {
-        console.error("Gagal parse userInfo:", e);
-        return null;
-    }
-    return null;
-}
-
 export const logout = async ({ token }) => {
   try {
     const { data } = await API.post('/logout', { token }, {
@@ -50,6 +36,20 @@ export const logout = async ({ token }) => {
     console.log(error);
     throw error
   }
+}
+
+export const getRole = () => {
+    try {
+        const userInfoString = localStorage.getItem('userInfo'); 
+        if (userInfoString) {
+            const userInfo = JSON.parse(userInfoString);
+            return userInfo?.role || null;
+        }
+    } catch (e) {
+        console.error("Gagal parse userInfo:", e);
+        return null;
+    }
+    return null;
 }
 
 
