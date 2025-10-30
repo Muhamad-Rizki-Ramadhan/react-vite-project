@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { login, useDecodeToken } from "../../_services/auth";
+import { login } from "../../_services/auth";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -12,9 +12,7 @@ export default function Login() {
   const [error, SetError] = useState(null);
   const [loading, SetLoading] = useState(false);
 
-  const token = localStorage.getItem("accessToken");
-  const decodedData = useDecodeToken(token);
-
+  // Fungsi untuk menangani perubahan input form
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -24,6 +22,7 @@ export default function Login() {
     });
   };
 
+  // Fungsi untuk menangani submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -32,26 +31,25 @@ export default function Login() {
     try {
       const response = await login(FormData);
 
+      // 1. Simpan token dan info user ke localStorage
       localStorage.setItem("accessToken", response.token);
       localStorage.setItem("userInfo", JSON.stringify(response.user));
 
+      // 2. Navigasi bersyarat setelah login berhasil
       if (response.user.role === "admin") {
         return navigate("/admin");
       } else {
-        return navigate("/");
+        return navigate("/"); // User biasa diarahkan ke halaman utama
       }
     } catch (error) {
+      // Menampilkan pesan error dari backend
       SetError(error?.response?.data?.message);
     } finally {
       SetLoading(false);
     }
   };
 
-  useEffect(() => {
-    if (token && decodedData && decodedData.success){
-      navigate("/admin")
-    }
-  }, [token, decodedData, navigate])
+
   return (
     <>
       <section className="bg-gray-50 dark:bg-gray-900">
@@ -132,7 +130,8 @@ export default function Login() {
                 </div>
                 <button
                   type="submit"
-                  className="w-full text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:ring-indigo-800"
+                  disabled={loading}
+                  className="w-full text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:ring-indigo-800 disabled:opacity-50"
                 >
                   {loading ? "Signing in" : "Sign in"}
                 </button>
